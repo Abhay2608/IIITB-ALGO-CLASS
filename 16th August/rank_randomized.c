@@ -1,3 +1,6 @@
+//non deterministic approach to find rank
+
+
 #include <stdio.h>
 #include <stdlib.h>
 int val = 0;
