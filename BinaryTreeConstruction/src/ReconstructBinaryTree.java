@@ -1,113 +1,87 @@
-<<<<<<< HEAD
-public class ReconstructBinaryTree {
+import java.util.*;
 
-    public  static  void main(String[] args){
-        int[] pre = {1,2,3,4,5};
-        int[] in = {4, 8, 2, 5, 1, 6, 3, 7};
-        int[] post = {8, 4, 5, 2, 6, 7, 3, 1};
-        /*BinaryTree root = constructInPre(pre,0,pre.length-1,in,0,in.length-1);
-        root.preOrder();
-        System.out.println("\n");
-        root.inOrder();*/
-        int[] postEnd = new int[1];
-        postEnd[0] = post.length-1;
-        BinaryTree root = constructInPost(in,post,0,in.length-1,postEnd);
-        //root.inOrder();
-        root.postOrder();
-    }
-
-    public static BinaryTree constructInPost(int[] inorder, int[] postorder, int inStart, int inEnd, int[] postEnd){
-        if(postEnd[0] < 0 || inStart > inEnd) return null;
-
-        int val = postorder[postEnd[0]];
-
-        int rootIndex = 0;
-        for(int i=inStart;i<=inEnd;i++){
-            if(inorder[i] == val){
-                rootIndex = i;
-                break;
-            }
-        }
-        BinaryTree root = new BinaryTree(postorder[postEnd[0]]);
-        postEnd[0] = postEnd[0] - 1;
-
-        //root.left = construct1(inorder,postorder,inStart,inStart+rootIndex-1,postEnd-1+rootIndex-inEnd);
-        root.right = constructInPost(inorder,postorder,rootIndex+1,inEnd,postEnd);
-        root.left = constructInPost(inorder,postorder,inStart,rootIndex-1,postEnd);
-        return root;
-    }
-    public static BinaryTree constructInPre(int[] pre,int preStart,int preEnd,int[] in,int inStart,int inEnd){
-        if(preStart>preEnd || inStart > inEnd)  return  null;
-
-        int val = pre[preStart];
-
-        int rootIndex = 0;
-        for(int i=inStart;i<inEnd;i++){
-            if(in[i] == val){
-                rootIndex = i;
-                break;
-            }
-        }
-        BinaryTree tree = new BinaryTree(val);
-        tree.left = constructInPre(pre,preStart+1,preStart+(rootIndex-inStart),in,inStart,(rootIndex-1));
-        tree.right = constructInPre(pre,preStart+(rootIndex-inStart)+1,preEnd,in,rootIndex+1,inEnd);
-        return tree;
+class Node {
+    int data;
+    Node left, right;
+    public Node(int item){
+        data = item;
+        left = right = null;
     }
 }
-=======
+
 public class ReconstructBinaryTree {
+    Node root;
+    static int preIndex = 0;
 
-    public  static  void main(String[] args){
-        int[] pre = {1,2,3,4,5};
-        int[] in = {4, 8, 2, 5, 1, 6, 3, 7};
-        int[] post = {8, 4, 5, 2, 6, 7, 3, 1};
-        /*BinaryTree root = constructInPre(pre,0,pre.length-1,in,0,in.length-1);
-        root.preOrder();
-        System.out.println("\n");
-        root.inOrder();*/
-        int[] postEnd = new int[1];
+    Node buildTreeInPre(int[] in, int[] pre, int inStrt, int inEnd, HashMap<Integer, Integer> map) {
+        if (inStrt > inEnd)            return null;
+
+        Node tNode = new Node(pre[preIndex++]);
+
+        if (inStrt == inEnd)            return tNode;
+
+        //int inIndex = search(in, inStrt, inEnd, tNode.data);
+        int inIndex = map.get(tNode.data);
+
+        tNode.left = buildTreeInPre(in, pre, inStrt, inIndex - 1, map);
+        tNode.right = buildTreeInPre(in, pre, inIndex + 1, inEnd, map);
+
+        return tNode;
+    }
+
+    Node buildTreeInPost(int[] in, int[] post, int inStrt, int inEnd, int[] pIndex, HashMap<Integer, Integer> map) {
+
+        if (inStrt > inEnd)            return null;
+
+        Node node = new Node(post[pIndex[0]]);
+        pIndex[0] = pIndex[0] - 1;
+
+        if (inStrt == inEnd)            return node;
+
+        //int iIndex = search(in, inStrt, inEnd, node.data);
+        int inIndex = map.get(node.data);
+
+        node.right = buildTreeInPost(in, post, inIndex + 1, inEnd, pIndex, map);
+        node.left = buildTreeInPost(in, post, inStrt, inIndex - 1, pIndex, map);
+
+        return node;
+    }
+
+    int search(int arr[], int strt, int end, int value){
+        int i;
+        for (i = strt; i <= end; i++) {
+            if (arr[i] == value)
+                return i;
+        }
+        return i;
+    }
+
+    void printInorder(Node node) {
+        if (node == null) return;
+        printInorder(node.left);
+        System.out.print(node.data + " ");
+        printInorder(node.right);
+    }
+
+    public static void main(String args[]) {
+        ReconstructBinaryTree tree = new ReconstructBinaryTree();
+        int in[] = new int[] {4,2,5,1,6,3};
+        int pre[] = new int[] {1,2,4,5,3,6};
+        int post[] = new int[] {4,5,2,6,3,1};
+        int len = in.length;
+        HashMap<Integer,Integer> map = new HashMap<Integer,Integer>();
+
+        for(int i=0;i<in.length;i++)
+            map.put(in[i],i);
+
+        Node root = tree.buildTreeInPre(in, pre, 0, len - 1,map);
+        System.out.println("Inorder traversal of constructed tree is : ");
+        tree.printInorder(root);
+
+
+        /*int[] postEnd = new int[1];
         postEnd[0] = post.length-1;
-        BinaryTree root = constructInPost(in,post,0,in.length-1,postEnd);
-        //root.inOrder();
-        root.postOrder();
-    }
-
-    public static BinaryTree constructInPost(int[] inorder, int[] postorder, int inStart, int inEnd, int[] postEnd){
-        if(postEnd[0] < 0 || inStart > inEnd) return null;
-
-        int val = postorder[postEnd[0]];
-
-        int rootIndex = 0;
-        for(int i=inStart;i<=inEnd;i++){
-            if(inorder[i] == val){
-                rootIndex = i;
-                break;
-            }
-        }
-        BinaryTree root = new BinaryTree(postorder[postEnd[0]]);
-        postEnd[0] = postEnd[0] - 1;
-
-        //root.left = construct1(inorder,postorder,inStart,inStart+rootIndex-1,postEnd-1+rootIndex-inEnd);
-        root.right = constructInPost(inorder,postorder,rootIndex+1,inEnd,postEnd);
-        root.left = constructInPost(inorder,postorder,inStart,rootIndex-1,postEnd);
-        return root;
-    }
-    public static BinaryTree constructInPre(int[] pre,int preStart,int preEnd,int[] in,int inStart,int inEnd){
-        if(preStart>preEnd || inStart > inEnd)  return  null;
-
-        int val = pre[preStart];
-
-        int rootIndex = 0;
-        for(int i=inStart;i<inEnd;i++){
-            if(in[i] == val){
-                rootIndex = i;
-                break;
-            }
-        }
-        BinaryTree tree = new BinaryTree(val);
-        tree.left = constructInPre(pre,preStart+1,preStart+(rootIndex-inStart),in,inStart,(rootIndex-1));
-        tree.right = constructInPre(pre,preStart+(rootIndex-inStart)+1,preEnd,in,rootIndex+1,inEnd);
-        return tree;
+        Node root = tree.buildTreeInPost(in,post,0,len-1,postEnd,map);
+        tree.printInorder(root);*/
     }
 }
->>>>>>> b7bc435ad029b9128d249b6e9142f50255981bb6
